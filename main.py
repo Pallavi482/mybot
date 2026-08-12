@@ -1,3 +1,23 @@
+import os
+import threading
+from flask import Flask
+
+# --- Flask Server (Render Port Timeout Fix) ---
+app = Flask(__name__)
+
+
+@app.route('/')
+def home():
+  return 'Bot is Alive!'
+
+
+def run_flask():
+  port = int(os.environ.get('PORT', 8080))
+  app.run(host='0.0.0.0', port=port)
+
+
+# Flask thread start karein
+threading.Thread(target=run_flask, daemon=True).start()
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaVideo
 
