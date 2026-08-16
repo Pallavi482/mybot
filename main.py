@@ -19,7 +19,6 @@ threading.Thread(target=run_flask, daemon=True).start()
 
 # ================= ⚙️ CONFIGURATION =================
 
-# Render Environment Variable se Token uthayega (Fallback ke liye direct token rakha hai)
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "8686847961:AAGdiPHVtcWuD69t312TuLVCiW2nJcWPfEU")
 
 OWNER_ID = 6509210563
@@ -102,32 +101,35 @@ def send_video_list(chat_id, video_list):
         for vid_id in valid_ids:
             try:
                 bot.send_video(chat_id, vid_id)
-            except:
+            except Exception:
                 pass
 
 # ================= 📱 MAIN MENU =================
 def main_menu():
-  markup = InlineKeyboardMarkup()
+    markup = InlineKeyboardMarkup()
     markup.add(InlineKeyboardButton("⚡ ALL VIDEO ⚡ -- ₹149 1M VIDEO", callback_data="pay_plan1"))
-   markup.add(InlineKeyboardButton("🌽 CHILD CHORN 🌽-- ₹98 20K+ VIDEO", callback_data="pay_plan2"))
+    markup.add(InlineKeyboardButton("🌽 CHILD CHORN 🌽-- ₹98 20K+ VIDEO", callback_data="pay_plan2"))
     markup.add(InlineKeyboardButton("💋 MOM SON,S 💋 📷-- ₹98 20K+ VIDEO", callback_data="pay_plan3"))
     markup.add(InlineKeyboardButton("📁 ✨ VIRAL MMS-LEAK ✨ -- ₹98  20K+ VIDEO", callback_data="pay_plan4"))
     markup.add(InlineKeyboardButton("👄 INDIAN RAPE 📷  -- ₹98 20K+ VIDEO", callback_data="pay_plan5")) 
-    markup.row
+    markup.row(
         InlineKeyboardButton("How to use ❓", callback_data="how_to_use"),
         InlineKeyboardButton("Report Issue 📩", callback_data="report_issue")
     )
-    return markup(
+    return markup
 
 # ================= 🚀 /START COMMAND (PRIVATE CHAT ONLY) =================
 @bot.message_handler(commands=['start'])
 def start_cmd(message):
     if message.chat.type != 'private':
-        return  # Group me command ko ignore karo
+        return
 
-    send_video_list(message.chat.id, START_VIDEOS)
-    welcome_text = "👋 Hello! Welcome to **VIP MEDIA**!\n\n👇 Choose a plan to get lifetime VIP access:"
-    bot.send_message(message.chat.id, welcome_text, reply_markup=main_menu(), parse_mode="Markdown")
+    try:
+        send_video_list(message.chat.id, START_VIDEOS)
+        welcome_text = "👋 Hello! Welcome to **VIP MEDIA**!\n\n👇 Choose a plan to get lifetime VIP access:"
+        bot.send_message(message.chat.id, welcome_text, reply_markup=main_menu(), parse_mode="Markdown")
+    except Exception as e:
+        print(f"Start command error: {e}")
 
 @bot.callback_query_handler(func=lambda call: call.data == "main_menu")
 def back_to_menu(call):
@@ -202,11 +204,11 @@ def extra_info(call):
     elif call.data == "report_issue":
         bot.send_message(call.message.chat.id, "📩 Report Issue:\nAgar koi dikkat hai toh message ya screenshot bhej dein.")
 
-# ================= 📩 SCREENSHOT FORWARDING (STRICT PRIVATE ONLY) =================
+# ================= 📩 SCREENSHOT FORWARDING =================
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message):
     if message.chat.type != 'private':
-        return  # Group me koi reaction nahi dega
+        return
 
     bot.reply_to(message, "⏳ **Checking your payment.... Please wait 5-10 min.**", parse_mode="Markdown")
 
@@ -227,11 +229,11 @@ def handle_photo(message):
         except Exception:
             pass
 
-# ================= 💬 USER TEXT MESSAGES (STRICT PRIVATE ONLY) =================
+# ================= 💬 USER TEXT MESSAGES =================
 @bot.message_handler(func=lambda message: message.chat.id not in ADMIN_LIST and not message.text.startswith('/'))
 def handle_user_text(message):
     if message.chat.type != 'private':
-        return  # Group ke text message ko ignore karega
+        return
 
     bot.reply_to(message, "⏳ **Message received! Support team will reply shortly.**", parse_mode="Markdown")
     
@@ -245,7 +247,7 @@ def handle_user_text(message):
         except Exception:
             pass
 
-# ================= 💬 ADMIN REPLIED TO USER (SWIPE-REPLY SYSTEM) =================
+# ================= 💬 ADMIN REPLIED TO USER =================
 @bot.message_handler(func=lambda message: message.chat.id in ADMIN_LIST and message.reply_to_message is not None)
 def handle_admin_reply(message):
     replied_msg = message.reply_to_message
