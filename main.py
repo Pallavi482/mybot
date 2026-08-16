@@ -107,17 +107,17 @@ def send_video_list(chat_id, video_list):
 
 # ================= 📱 MAIN MENU =================
 def main_menu():
-    markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton("1234 -- ₹149 1M VIDEO", callback_data="pay_plan1"))
-    markup.add(InlineKeyboardButton("🌽 1234🌽-- ₹98 20K+ VIDEO", callback_data="pay_plan2"))
-    markup.add(InlineKeyboardButton("💋 1234💋 📷-- ₹98 20K+ VIDEO", callback_data="pay_plan3"))
-    markup.add(InlineKeyboardButton("📁 ✨ 1234 ✨ -- ₹98  20K+ VIDEO", callback_data="pay_plan4"))
-    markup.add(InlineKeyboardButton("👄 1234📷  -- ₹98 20K+ VIDEO", callback_data="pay_plan5"))
-    markup.row(
+  markup = InlineKeyboardMarkup()
+    markup.add(InlineKeyboardButton("⚡ ALL VIDEO ⚡ -- ₹149 1M VIDEO", callback_data="pay_plan1"))
+   markup.add(InlineKeyboardButton("🌽 CHILD CHORN 🌽-- ₹98 20K+ VIDEO", callback_data="pay_plan2"))
+    markup.add(InlineKeyboardButton("💋 MOM SON,S 💋 📷-- ₹98 20K+ VIDEO", callback_data="pay_plan3"))
+    markup.add(InlineKeyboardButton("📁 ✨ VIRAL MMS-LEAK ✨ -- ₹98  20K+ VIDEO", callback_data="pay_plan4"))
+    markup.add(InlineKeyboardButton("👄 INDIAN RAPE 📷  -- ₹98 20K+ VIDEO", callback_data="pay_plan5")) 
+    markup.row
         InlineKeyboardButton("How to use ❓", callback_data="how_to_use"),
         InlineKeyboardButton("Report Issue 📩", callback_data="report_issue")
     )
-    return markup
+    return markup(
 
 # ================= 🚀 /START COMMAND (PRIVATE CHAT ONLY) =================
 @bot.message_handler(commands=['start'])
