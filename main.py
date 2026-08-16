@@ -1,24 +1,21 @@
 import os
-
 import threading
 from flask import Flask
 
 # --- Flask Server (Render Port Timeout Fix) ---
 app = Flask(__name__)
 
-
 @app.route('/')
 def home():
-  return 'Bot is Alive!'
-
+    return 'Bot is Alive!'
 
 def run_flask():
-  port = int(os.environ.get('PORT', 8080))
-  app.run(host='0.0.0.0', port=port)
-
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port)
 
 # Flask thread start karein
 threading.Thread(target=run_flask, daemon=True).start()
+
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaVideo
 
@@ -35,7 +32,7 @@ PAYMENT_NAME = "Pallavi Lodhi"
 VIP_ZIP_LINK = "https://t.me/goodbfyh"
 VIP_HUB_LINK = "https://t.me/+sFJS3ZsRu29hNDU1"
 
-# ================= 🎥 VIDEO FILE IDs (CATEGORY WISE) =================
+# ================= 🎥 VIDEO FILE IDs =================
 
 START_VIDEOS = [
     "BAACAgUAAxkBAAMPanj7WJ03eLJC9SpuTRPsJBsC5HAAAlonAALe5chXh1r_idW46GU9BA",
@@ -112,11 +109,11 @@ def send_video_list(chat_id, video_list):
 # ================= 📱 MAIN MENU =================
 def main_menu():
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton(" ✨ ALL VIDEO ✨ -- ₹149 1M VIDEO", callback_data="pay_plan1"))
-    markup.add(InlineKeyboardButton("🌽 CHILD CHORN 🌽-- ₹98 20K+ VIDEO", callback_data="pay_plan2"))
-    markup.add(InlineKeyboardButton("💋 MOM SON,S 💋 📷-- ₹98 20K+ VIDEO", callback_data="pay_plan3"))
-    markup.add(InlineKeyboardButton("📁 ✨ VIRAL MMS-LICK ✨ -- ₹98  20K+ VIDEO",callback_data="pay_plan4"))
-    markup.add(InlineKeyboardButton("👄 INDIAN RAPE 📷  -- ₹98 20K+ VIDEO", callback_data="pay_plan5"))
+    markup.add(InlineKeyboardButton("1234 -- ₹149 1M VIDEO", callback_data="pay_plan1"))
+    markup.add(InlineKeyboardButton("🌽 1234🌽-- ₹98 20K+ VIDEO", callback_data="pay_plan2"))
+    markup.add(InlineKeyboardButton("💋 1234💋 📷-- ₹98 20K+ VIDEO", callback_data="pay_plan3"))
+    markup.add(InlineKeyboardButton("📁 ✨ 1234 ✨ -- ₹98  20K+ VIDEO", callback_data="pay_plan4"))
+    markup.add(InlineKeyboardButton("👄 1234📷  -- ₹98 20K+ VIDEO", callback_data="pay_plan5"))
     markup.row(
         InlineKeyboardButton("How to use ❓", callback_data="how_to_use"),
         InlineKeyboardButton("Report Issue 📩", callback_data="report_issue")
@@ -193,7 +190,7 @@ def extra_info(call):
     elif call.data == "report_issue":
         bot.send_message(call.message.chat.id, "📩 Report Issue:\nAgar koi dikkat hai toh message ya screenshot bhej dein.")
 
-# ================= 📩 SCREENSHOT & ADMIN APPROVAL =================
+# ================= 📩 SCREENSHOT & TEXT FORWARDING TO ADMIN =================
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message):
     bot.reply_to(message, "⏳ **Checking your payment.... Please wait 5-10 min.**", parse_mode="Markdown")
@@ -205,13 +202,55 @@ def handle_photo(message):
             bot.send_photo(
                 admin_id, 
                 message.photo[-1].file_id, 
-                caption=f"📩 **New Payment Screenshot!**\nUser ID: `{message.from_user.id}`",
+                caption=f"📩 **New Payment Screenshot!**\nUser ID: `{message.from_user.id}`\n\n*(Right-swipe to reply to user)*",
                 reply_markup=markup,
                 parse_mode="Markdown"
             )
         except Exception:
             pass
 
+# Handle User Text Messages (Report Issue / General Query)
+@bot.message_handler(func=lambda message: message.chat.id not in ADMIN_LIST and not message.text.startswith('/'))
+def handle_user_text(message):
+    bot.reply_to(message, "⏳ **Message received! Support team will reply shortly.**", parse_mode="Markdown")
+    
+    for admin_id in ADMIN_LIST:
+        try:
+            bot.send_message(
+                admin_id,
+                f"💬 **New Message from User!**\nUser ID: `{message.from_user.id}`\n\nMessage: {message.text}\n\n*(Right-swipe to reply)*",
+                parse_mode="Markdown"
+            )
+        except Exception:
+            pass
+
+# ================= 💬 ADMIN REPLIED TO USER (SWIPE-REPLY SYSTEM) =================
+@bot.message_handler(func=lambda message: message.chat.id in ADMIN_LIST and message.reply_to_message is not None)
+def handle_admin_reply(message):
+    replied_msg = message.reply_to_message
+    target_user_id = None
+
+    # Screenshot Caption ya Text se User ID extract karna
+    text_source = replied_msg.caption if replied_msg.caption else replied_msg.text
+
+    if text_source and "User ID:" in text_source:
+        try:
+            target_user_id = int(text_source.split("User ID:")[1].split()[0].replace("`", ""))
+        except Exception:
+            target_user_id = None
+
+    if target_user_id:
+        try:
+            # User ko Message Send Karo
+            bot.send_message(target_user_id, f"💬 **Support Reply:**\n\n{message.text}", parse_mode="Markdown")
+            # Admin ko Confirmation
+            bot.reply_to(message, "✅ **Message sent!**", parse_mode="Markdown")
+        except Exception as e:
+            bot.reply_to(message, f"❌ User ko message nahi gaya: {str(e)}")
+    else:
+        bot.reply_to(message, "⚠️ User ID nahi mil saki. Sahi message par reply karein.")
+
+# ================= 🔓 VIP ACCESS APPROVAL =================
 @bot.callback_query_handler(func=lambda call: call.data.startswith("approve_"))
 def approve_user(call):
     user_id = int(call.data.split("_")[1])
@@ -237,4 +276,4 @@ def get_video_id(message):
 
 print("🤖 Bot Started Successfully!")
 bot.infinity_polling()
-
+  
